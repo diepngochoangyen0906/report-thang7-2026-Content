@@ -72,10 +72,12 @@
             background-color: rgba(250, 247, 240, 0.5);
         }
 
-        .editable-active .img-container {
+        /* Hover effect on editable images */
+        .img-container {
+            position: relative;
             cursor: pointer;
         }
-        .editable-active .img-container::after {
+        .img-container::after {
             content: '📸 Click để đổi ảnh';
             position: absolute;
             inset: 0;
@@ -91,7 +93,7 @@
             border-radius: 8px;
             backdrop-filter: blur(2px);
         }
-        .editable-active .img-container:hover::after {
+        .img-container:hover::after {
             opacity: 1;
         }
     </style>
@@ -202,10 +204,10 @@
             
             <!-- HEADER TITLE -->
             <div class="text-center mb-6">
-                <h1 class="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider text-brand-gold uppercase mb-1" data-editable="true" contenteditable="false">
+                <h1 class="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider text-brand-gold uppercase mb-1" contenteditable="true">
                     DỰ ÁN NỔI BẬT
                 </h1>
-                <p class="text-brand-textMuted font-semibold text-xs sm:text-sm md:text-base uppercase tracking-wide" data-editable="true" contenteditable="false">
+                <p class="text-brand-textMuted font-semibold text-xs sm:text-sm md:text-base uppercase tracking-wide" contenteditable="true">
                     TỐI ƯU ĐIỂM CHẠM – HỖ TRỢ THÚC ĐẨY HIỆU QUẢ CHƯƠNG TRÌNH
                 </p>
             </div>
@@ -213,24 +215,24 @@
             <!-- TẦNG 1: TÊN & HIỆU QUẢ CHƯƠNG TRÌNH (1/3 chiều cao) -->
             <div class="bg-brand-card rounded-2xl border border-brand-border p-5 sm:p-6 shadow-sm mb-6 max-w-xl mx-auto">
                 <div class="text-center mb-4">
-                    <span class="inline-block text-xs font-bold tracking-widest text-brand-gold uppercase mb-1" data-editable="true" contenteditable="false">
+                    <span class="inline-block text-xs font-bold tracking-widest text-brand-gold uppercase mb-1" contenteditable="true">
                         TĂNG DT HÀNG MỚI
                     </span>
-                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-brand-navy leading-tight" data-editable="true" contenteditable="false">
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-brand-navy leading-tight" contenteditable="true">
                         CHƯƠNG TRÌNH<br>TRANG SỨC THÁNG 7
                     </h2>
                 </div>
 
                 <div class="bg-[#FAF7F0] rounded-xl p-4 text-center border border-[#EADFCB] shadow-2xs">
-                    <div class="text-xs sm:text-sm font-bold tracking-wider text-brand-gold uppercase pb-2 border-b border-[#EADFCB]/80 mb-3" data-editable="true" contenteditable="false">
+                    <div class="text-xs sm:text-sm font-bold tracking-wider text-brand-gold uppercase pb-2 border-b border-[#EADFCB]/80 mb-3" contenteditable="true">
                         HIỆU QUẢ CHƯƠNG TRÌNH
                     </div>
 
                     <div class="my-2">
-                        <div class="font-serif italic text-3xl sm:text-4xl font-bold text-[#8B1A24] tracking-tight" data-editable="true" contenteditable="false">
+                        <div class="font-serif italic text-3xl sm:text-4xl font-bold text-[#8B1A24] tracking-tight" contenteditable="true">
                             4,586,776
                         </div>
-                        <div class="text-xs font-bold tracking-wider text-brand-navy uppercase mt-0.5" data-editable="true" contenteditable="false">
+                        <div class="text-xs font-bold tracking-wider text-brand-navy uppercase mt-0.5" contenteditable="true">
                             TOTAL SESSION
                         </div>
                     </div>
@@ -239,20 +241,20 @@
 
                     <div class="grid grid-cols-2 gap-2.5 pt-0.5">
                         <div class="bg-white rounded-lg border border-[#EADFCB]/80 py-2 px-3 flex items-center justify-center gap-1.5 shadow-2xs">
-                            <span class="font-bold text-brand-navy text-xs sm:text-sm" data-editable="true" contenteditable="false">34,655,554</span>
-                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" data-editable="true" contenteditable="false">REACH</span>
+                            <span class="font-bold text-brand-navy text-xs sm:text-sm" contenteditable="true">34,655,554</span>
+                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" contenteditable="true">REACH</span>
                         </div>
                         <div class="bg-white rounded-lg border border-[#EADFCB]/80 py-2 px-3 flex items-center justify-center gap-1.5 shadow-2xs">
-                            <span class="font-bold text-brand-navy text-xs sm:text-sm" data-editable="true" contenteditable="false">2.49%</span>
-                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" data-editable="true" contenteditable="false">CTR</span>
+                            <span class="font-bold text-brand-navy text-xs sm:text-sm" contenteditable="true">2.49%</span>
+                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" contenteditable="true">CTR</span>
                         </div>
                         <div class="bg-white rounded-lg border border-[#EADFCB]/80 py-2 px-3 flex items-center justify-center gap-1.5 shadow-2xs">
-                            <span class="font-bold text-brand-navy text-xs sm:text-sm" data-editable="true" contenteditable="false">861,248</span>
-                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" data-editable="true" contenteditable="false">CLICK</span>
+                            <span class="font-bold text-brand-navy text-xs sm:text-sm" contenteditable="true">861,248</span>
+                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" contenteditable="true">CLICK</span>
                         </div>
                         <div class="bg-white rounded-lg border border-[#EADFCB]/80 py-2 px-3 flex items-center justify-center gap-1.5 shadow-2xs">
-                            <span class="font-bold text-brand-navy text-xs sm:text-sm" data-editable="true" contenteditable="false">35,564</span>
-                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" data-editable="true" contenteditable="false">LEAD</span>
+                            <span class="font-bold text-brand-navy text-xs sm:text-sm" contenteditable="true">35,564</span>
+                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" contenteditable="true">LEAD</span>
                         </div>
                     </div>
                 </div>
@@ -260,19 +262,19 @@
 
             <!-- THÔNG ĐIỆP DẪN DẮT (QUOTE BLOCK) -->
             <div class="my-6 text-center max-w-4xl mx-auto px-4">
-                <p class="font-serif italic text-lg sm:text-xl md:text-2xl text-brand-textDark font-medium leading-relaxed" data-editable="true" contenteditable="false">
+                <p class="font-serif italic text-lg sm:text-xl md:text-2xl text-brand-textDark font-medium leading-relaxed" contenteditable="true">
                     “Góp phần đưa <span class="font-bold text-brand-navy bg-amber-200/70 px-2 py-0.5 rounded border border-amber-300/80 underline decoration-brand-gold decoration-1 underline-offset-4 not-italic inline-block mx-0.5 shadow-2xs">đúng thông điệp ưu đãi</span> đến <span class="font-bold text-brand-navy bg-amber-200/70 px-2 py-0.5 rounded border border-amber-300/80 underline decoration-brand-gold decoration-1 underline-offset-4 not-italic inline-block mx-0.5 shadow-2xs">đúng nhóm khách hàng</span>, tại nhiều điểm chạm trong suốt chương trình – hỗ trợ tăng khả năng tiếp cận và thúc đẩy hành động mua sắm.”
                 </p>
             </div>
 
-            <!-- TẦNG 2 & TẦNG 3: VAI TRÒ CHÍNH & VÍ DỤ CỤ THỂ -->
+            <!-- TẦNG 2 & TẦNG 3: VAI TRÒ CHÍNH & VÍ DỤ CỤ THỂ (XẾP DỌC TỪ TRÊN XUỐNG DƯỚI) -->
             <div class="flex flex-col gap-6 sm:gap-8 mt-6">
 
                 <!-- KHỐI 1: ĐÚNG THÔNG ĐIỆP - ĐÚNG THỜI ĐIỂM -->
                 <div class="flex flex-col bg-brand-card rounded-2xl border-2 border-brand-border/80 overflow-hidden shadow-md">
                     
                     <div class="bg-[#2B5EA7] text-white py-4 px-5 min-h-[70px] flex items-center justify-center text-center font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase shadow-md">
-                        <span data-editable="true" contenteditable="false">ĐÚNG THÔNG ĐIỆP – ĐÚNG THỜI ĐIỂM CHO KHÁCH HÀNG MỚI & KHÁCH HÀNG CŨ</span>
+                        <span contenteditable="true">ĐÚNG THÔNG ĐIỆP – ĐÚNG THỜI ĐIỂM CHO KHÁCH HÀNG MỚI & KHÁCH HÀNG CŨ</span>
                     </div>
 
                     <div class="p-5 sm:p-6 md:p-7 bg-stone-50/30">
@@ -286,8 +288,8 @@
                                     </div>
                                 </div>
                                 <div class="text-center pt-3 border-t border-stone-200">
-                                    <p class="text-xs italic text-brand-textMuted" data-editable="true" contenteditable="false">Cá nhân hoá nội dung</p>
-                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" data-editable="true" contenteditable="false">GIỚI THIỆU ƯU ĐÃI</p>
+                                    <p class="text-xs italic text-brand-textMuted" contenteditable="true">Cá nhân hoá nội dung</p>
+                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" contenteditable="true">GIỚI THIỆU ƯU ĐÃI</p>
                                 </div>
                             </div>
 
@@ -299,8 +301,8 @@
                                     </div>
                                 </div>
                                 <div class="text-center pt-3 border-t border-stone-200">
-                                    <p class="text-xs italic text-brand-textMuted" data-editable="true" contenteditable="false">Cá nhân hoá nội dung</p>
-                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" data-editable="true" contenteditable="false">NHẮC NHỜ ƯU ĐÃI</p>
+                                    <p class="text-xs italic text-brand-textMuted" contenteditable="true">Cá nhân hoá nội dung</p>
+                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" contenteditable="true">NHẮC NHỜ ƯU ĐÃI</p>
                                 </div>
                             </div>
                         </div>
@@ -312,7 +314,7 @@
                 <div class="flex flex-col bg-brand-card rounded-2xl border-2 border-brand-border/80 overflow-hidden shadow-md">
                     
                     <div class="bg-[#2B5EA7] text-white py-4 px-5 min-h-[70px] flex items-center justify-center text-center font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase shadow-md">
-                        <span data-editable="true" contenteditable="false">MỞ RỘNG ĐIỂM CHẠM KHÁCH HÀNG QUA ZALO BROADCAST & BLOG</span>
+                        <span contenteditable="true">MỞ RỘNG ĐIỂM CHẠM KHÁCH HÀNG QUA ZALO BROADCAST & BLOG</span>
                     </div>
 
                     <div class="p-5 sm:p-6 md:p-7 bg-stone-50/30">
@@ -328,8 +330,8 @@
                                 </div>
 
                                 <div class="text-center pt-3 border-t border-stone-200">
-                                    <p class="text-xs italic text-brand-textMuted" data-editable="true" contenteditable="false">Truyền thông qua Zalo</p>
-                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" data-editable="true" contenteditable="false">ZALO OA BROADCAST</p>
+                                    <p class="text-xs italic text-brand-textMuted" contenteditable="true">Truyền thông qua Zalo</p>
+                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" contenteditable="true">ZALO OA BROADCAST</p>
                                 </div>
                             </div>
 
@@ -343,8 +345,8 @@
                                 </div>
 
                                 <div class="text-center pt-3 border-t border-stone-200">
-                                    <p class="text-xs italic text-brand-textMuted" data-editable="true" contenteditable="false">Bài viết website & SEO</p>
-                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" data-editable="true" contenteditable="false">BLOG TIN TỨC PNJ</p>
+                                    <p class="text-xs italic text-brand-textMuted" contenteditable="true">Bài viết website & SEO</p>
+                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" contenteditable="true">BLOG TIN TỨC PNJ</p>
                                 </div>
                             </div>
                         </div>
@@ -399,31 +401,34 @@
                             </ul>
                         </div>
 
-                        <!-- Grid 3 hình ảnh ngang -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div class="img-container relative rounded-xl overflow-hidden border border-stone-200 bg-white shadow-xs p-1.5" onclick="promptChangeImage(this)">
-                                <div class="relative aspect-[3/4] sm:aspect-[4/5] min-h-[260px] sm:min-h-[320px] w-full bg-stone-50/80 rounded-lg overflow-hidden flex items-center justify-center p-2">
-                                    <img src="TS Ý.png" alt="Trang sức Ý" class="w-full h-full object-contain drop-shadow-xs" onerror="this.onerror=null;this.src='https://placehold.co/600x800/FAF7F0/A27B38?text=TS+%C3%9D'">
+                        <!-- Grid 3 hình ảnh dọc (Aligned Equal Height) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-stretch">
+                            <!-- Hình 1: TS Ý -->
+                            <div class="flex flex-col justify-between img-container relative rounded-xl overflow-hidden border border-stone-200 bg-white shadow-xs" onclick="promptChangeImage(this)">
+                                <div class="relative aspect-[4/5] w-full bg-stone-50 flex items-center justify-center p-1">
+                                    <img src="Ý.png" alt="Trang sức Ý" class="w-full h-full object-contain rounded" onerror="this.onerror=null;this.src='https://placehold.co/400x500/FAF7F0/A27B38?text=%C3%9D.png'">
                                 </div>
-                                <div class="p-2.5 text-[11px] sm:text-xs font-semibold text-brand-navy text-center border-t border-stone-100 mt-1" contenteditable="true">
+                                <div class="p-2.5 bg-stone-50 text-[11px] sm:text-xs font-semibold text-brand-navy text-center border-t border-stone-200 mt-auto" contenteditable="true">
                                     Trang sức Ý – Chất Ý thanh lịch
                                 </div>
                             </div>
 
-                            <div class="img-container relative rounded-xl overflow-hidden border border-stone-200 bg-white shadow-xs p-1.5" onclick="promptChangeImage(this)">
-                                <div class="relative aspect-[3/4] sm:aspect-[4/5] min-h-[260px] sm:min-h-[320px] w-full bg-stone-50/80 rounded-lg overflow-hidden flex items-center justify-center p-2">
-                                    <img src="ECZ.png" alt="Trang sức ECZ" class="w-full h-full object-contain drop-shadow-xs" onerror="this.onerror=null;this.src='https://placehold.co/600x800/FAF7F0/A27B38?text=ECZ'">
+                            <!-- Hình 2: ECZ -->
+                            <div class="flex flex-col justify-between img-container relative rounded-xl overflow-hidden border border-stone-200 bg-white shadow-xs" onclick="promptChangeImage(this)">
+                                <div class="relative aspect-[4/5] w-full bg-stone-50 flex items-center justify-center p-1">
+                                    <img src="ECZ-1.png" alt="Trang sức ECZ" class="w-full h-full object-contain rounded" onerror="this.onerror=null;this.src='https://placehold.co/400x500/FAF7F0/A27B38?text=ECZ-1.png'">
                                 </div>
-                                <div class="p-2.5 text-[11px] sm:text-xs font-semibold text-brand-navy text-center border-t border-stone-100 mt-1" contenteditable="true">
+                                <div class="p-2.5 bg-stone-50 text-[11px] sm:text-xs font-semibold text-brand-navy text-center border-t border-stone-200 mt-auto" contenteditable="true">
                                     Trang sức ECZ – Lấp lánh vibe riêng
                                 </div>
                             </div>
 
-                            <div class="img-container relative rounded-xl overflow-hidden border border-stone-200 bg-white shadow-xs p-1.5" onclick="promptChangeImage(this)">
-                                <div class="relative aspect-[3/4] sm:aspect-[4/5] min-h-[260px] sm:min-h-[320px] w-full bg-stone-50/80 rounded-lg overflow-hidden flex items-center justify-center p-2">
-                                    <img src="TS BẠC.png" alt="Trang sức Bạc" class="w-full h-full object-contain drop-shadow-xs" onerror="this.onerror=null;this.src='https://placehold.co/600x800/FAF7F0/A27B38?text=TS+B%E1%BA%A0C'">
+                            <!-- Hình 3: TS BẠC -->
+                            <div class="flex flex-col justify-between img-container relative rounded-xl overflow-hidden border border-stone-200 bg-white shadow-xs" onclick="promptChangeImage(this)">
+                                <div class="relative aspect-[4/5] w-full bg-stone-50 flex items-center justify-center p-1">
+                                    <img src="Bạc.png" alt="Trang sức Bạc" class="w-full h-full object-contain rounded" onerror="this.onerror=null;this.src='https://placehold.co/400x500/FAF7F0/A27B38?text=B%E1%BA%A1c.png'">
                                 </div>
-                                <div class="p-2.5 text-[11px] sm:text-xs font-semibold text-brand-navy text-center border-t border-stone-100 mt-1" contenteditable="true">
+                                <div class="p-2.5 bg-stone-50 text-[11px] sm:text-xs font-semibold text-brand-navy text-center border-t border-stone-200 mt-auto" contenteditable="true">
                                     Trang sức Bạc – Lấp lánh đa sắc
                                 </div>
                             </div>
@@ -807,30 +812,26 @@
             }
         }
 
-        // Quick edit mode toggle (disabled by default for viewers)
+        // Quick edit mode toggle
         function toggleEditMode() {
             isEditMode = !isEditMode;
             const body = document.body;
             const btnText = document.getElementById('editBtnText');
             const toggleBtn = document.getElementById('toggleEditBtn');
-            const editableElements = document.querySelectorAll('[data-editable]');
 
             if (isEditMode) {
                 body.classList.add('editable-active');
                 btnText.textContent = "Đang ở chế độ sửa";
                 toggleBtn.classList.add('bg-amber-100', 'border-amber-400');
-                editableElements.forEach(el => el.setAttribute('contenteditable', 'true'));
             } else {
                 body.classList.remove('editable-active');
                 btnText.textContent = "Chế độ sửa nhanh";
                 toggleBtn.classList.remove('bg-amber-100', 'border-amber-400');
-                editableElements.forEach(el => el.setAttribute('contenteditable', 'false'));
             }
         }
 
-        // Open custom image modal only when edit mode is active
+        // Open custom image modal without alert/confirm
         function promptChangeImage(container) {
-            if (!isEditMode) return; // Prevent modal popup for viewers
             const img = container.querySelector('img');
             if (!img) return;
 
@@ -1038,7 +1039,6 @@
 
         window.onload = function() {
             switchSubTab(1);
-            document.querySelectorAll('[data-editable]').forEach(el => el.setAttribute('contenteditable', 'false'));
         };
     </script>
 </body>
