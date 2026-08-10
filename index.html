@@ -1,1 +1,1042 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Content - Report Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#F7F4EE',
+                            card: '#FFFFFF',
+                            border: '#E8E1D5',
+                            gold: '#A27B38',
+                            goldLight: '#FAF7F0',
+                            goldBorder: '#EADFCB',
+                            red: '#8B1A24',
+                            redText: '#9E2A2B',
+                            navy: '#122238',
+                            navyLight: '#1E293B',
+                            beige: '#EAE4D7',
+                            beigeDark: '#D8CFBC',
+                            textDark: '#2B231D',
+                            textMuted: '#786C5E'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #F7F4EE;
+            color: #2B231D;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F7F4EE;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D8CFBC;
+            border-radius: 999px;
+        }
+
+        .editable-active [contenteditable="true"] {
+            outline: 2px dashed #A27B38 !important;
+            outline-offset: 2px;
+            border-radius: 4px;
+            background-color: rgba(250, 247, 240, 0.5);
+        }
+
+        /* Hover effect on editable images */
+        .img-container {
+            position: relative;
+            cursor: pointer;
+        }
+        .img-container::after {
+            content: '📸 Click để đổi ảnh';
+            position: absolute;
+            inset: 0;
+            background: rgba(18, 34, 56, 0.75);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            border-radius: 8px;
+            backdrop-filter: blur(2px);
+        }
+        .img-container:hover::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16 pt-4 px-3 sm:px-6 lg:px-8">
+
+    <!-- Hidden File Input for Image Upload -->
+    <input type="file" id="globalImageInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+
+    <!-- Custom Image Options Modal (Replaces window.confirm / prompt) -->
+    <div id="imageModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden transition-all duration-200">
+        <div class="bg-white rounded-2xl border border-brand-border shadow-2xl p-5 sm:p-6 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0 duration-200" id="imageModalCard">
+            <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+                <h3 class="font-bold text-brand-navy text-base sm:text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-image text-brand-gold"></i>
+                    <span>Thay Đổi Hình Ảnh</span>
+                </h3>
+                <button onclick="closeImageModal()" class="text-stone-400 hover:text-stone-600 transition text-lg px-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="py-5 space-y-4">
+                <!-- Option 1: Upload from computer -->
+                <button onclick="triggerLocalFileUpload()" class="w-full py-3 px-4 rounded-xl bg-brand-goldLight border border-brand-goldBorder hover:border-brand-gold text-brand-navy font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-xs group">
+                    <i class="fa-solid fa-upload text-brand-gold group-hover:scale-110 transition-transform"></i>
+                    <span>Tải ảnh từ máy tính</span>
+                </button>
+
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-stone-200"></div>
+                    <span class="flex-shrink mx-3 text-stone-400 text-[11px] font-semibold uppercase">Hoặc dán Link URL</span>
+                    <div class="flex-grow border-t border-stone-200"></div>
+                </div>
+
+                <!-- Option 2: Paste URL -->
+                <div class="space-y-2">
+                    <input type="url" id="imageUrlInput" placeholder="https://example.com/image.jpg" class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-stone-300 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition">
+                    <button onclick="applyImageUrl()" class="w-full py-2.5 px-4 rounded-xl bg-brand-navy text-white hover:bg-brand-navyLight font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-xs">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Cập nhật bằng Link URL</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-2 text-right border-t border-stone-100">
+                <button onclick="closeImageModal()" class="px-4 py-2 rounded-xl text-stone-500 hover:bg-stone-100 font-medium text-xs transition">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Action Bar for Github Pages preview & Editing Mode -->
+    <header class="max-w-6xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm border-b border-brand-border/60 pb-3">
+        <div class="flex items-center gap-2">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-semibold tracking-wider uppercase text-brand-textMuted text-[11px]">GitHub Report Dashboard</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="toggleEditBtn" onclick="toggleEditMode()" class="px-3 py-1.5 rounded-full bg-white border border-brand-border hover:border-brand-gold text-brand-textDark text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-pen-to-square text-brand-gold"></i>
+                <span id="editBtnText">Chế độ sửa nhanh</span>
+            </button>
+            <button onclick="window.print()" class="px-3 py-1.5 rounded-full bg-white border border-brand-border hover:border-brand-gold text-brand-textDark text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-print text-brand-textMuted"></i>
+                <span class="hidden sm:inline">In / Xuất PDF</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Header Badge (TEAM CONTENT) -->
+    <section class="max-w-6xl mx-auto flex justify-center mb-4">
+        <div class="inline-flex px-6 py-2 rounded-full bg-brand-red text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-md items-center gap-2">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>TEAM CONTENT</span>
+        </div>
+    </section>
+
+    <!-- Sub Tabs -->
+    <nav class="max-w-6xl mx-auto flex justify-center mb-8 px-2">
+        <div class="inline-flex flex-wrap justify-center p-1 rounded-full bg-white/80 backdrop-blur border border-brand-border shadow-sm gap-1 max-w-full">
+            
+            <button onclick="switchSubTab(1)" id="subTab-1" class="px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all duration-200 flex items-center gap-2 bg-brand-navy text-white shadow">
+                <i class="fa-solid fa-star text-amber-300 text-xs"></i>
+                <span>DỰ ÁN NỔI BẬT</span>
+            </button>
+
+            <button onclick="switchSubTab(2)" id="subTab-2" class="px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all duration-200 flex items-center gap-2 text-brand-textDark hover:bg-brand-beige/50">
+                <i class="fa-solid fa-cubes text-brand-gold text-xs"></i>
+                <span>VAI TRÒ CREATIVE HUB</span>
+            </button>
+
+            <button onclick="switchSubTab(3)" id="subTab-3" class="px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all duration-200 flex items-center gap-2 text-brand-textDark hover:bg-brand-beige/50">
+                <i class="fa-solid fa-bolt text-brand-gold text-xs"></i>
+                <span>HỖ TRỢ TRUYỀN THÔNG GTM</span>
+            </button>
+
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: DỰ ÁN NỔI BẬT                       -->
+        <!-- ========================================== -->
+        <section id="content-subTab-1" class="tab-content block">
+            
+            <!-- HEADER TITLE -->
+            <div class="text-center mb-6">
+                <h1 class="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider text-brand-gold uppercase mb-1" contenteditable="true">
+                    DỰ ÁN NỔI BẬT
+                </h1>
+                <p class="text-brand-textMuted font-semibold text-xs sm:text-sm md:text-base uppercase tracking-wide" contenteditable="true">
+                    TỐI ƯU ĐIỂM CHẠM – HỖ TRỢ THÚC ĐẨY HIỆU QUẢ CHƯƠNG TRÌNH
+                </p>
+            </div>
+
+            <!-- TẦNG 1: TÊN & HIỆU QUẢ CHƯƠNG TRÌNH (1/3 chiều cao) -->
+            <div class="bg-brand-card rounded-2xl border border-brand-border p-5 sm:p-6 shadow-sm mb-6 max-w-xl mx-auto">
+                <div class="text-center mb-4">
+                    <span class="inline-block text-xs font-bold tracking-widest text-brand-gold uppercase mb-1" contenteditable="true">
+                        TĂNG DT HÀNG MỚI
+                    </span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-brand-navy leading-tight" contenteditable="true">
+                        CHƯƠNG TRÌNH<br>TRANG SỨC THÁNG 7
+                    </h2>
+                </div>
+
+                <div class="bg-[#FAF7F0] rounded-xl p-4 text-center border border-[#EADFCB] shadow-2xs">
+                    <div class="text-xs sm:text-sm font-bold tracking-wider text-brand-gold uppercase pb-2 border-b border-[#EADFCB]/80 mb-3" contenteditable="true">
+                        HIỆU QUẢ CHƯƠNG TRÌNH
+                    </div>
+
+                    <div class="my-2">
+                        <div class="font-serif italic text-3xl sm:text-4xl font-bold text-[#8B1A24] tracking-tight" contenteditable="true">
+                            4,586,776
+                        </div>
+                        <div class="text-xs font-bold tracking-wider text-brand-navy uppercase mt-0.5" contenteditable="true">
+                            TOTAL SESSION
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#EADFCB]/80 my-3"></div>
+
+                    <div class="grid grid-cols-2 gap-2.5 pt-0.5">
+                        <div class="bg-white rounded-lg border border-[#EADFCB]/80 py-2 px-3 flex items-center justify-center gap-1.5 shadow-2xs">
+                            <span class="font-bold text-brand-navy text-xs sm:text-sm" contenteditable="true">34,655,554</span>
+                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" contenteditable="true">REACH</span>
+                        </div>
+                        <div class="bg-white rounded-lg border border-[#EADFCB]/80 py-2 px-3 flex items-center justify-center gap-1.5 shadow-2xs">
+                            <span class="font-bold text-brand-navy text-xs sm:text-sm" contenteditable="true">2.49%</span>
+                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" contenteditable="true">CTR</span>
+                        </div>
+                        <div class="bg-white rounded-lg border border-[#EADFCB]/80 py-2 px-3 flex items-center justify-center gap-1.5 shadow-2xs">
+                            <span class="font-bold text-brand-navy text-xs sm:text-sm" contenteditable="true">861,248</span>
+                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" contenteditable="true">CLICK</span>
+                        </div>
+                        <div class="bg-white rounded-lg border border-[#EADFCB]/80 py-2 px-3 flex items-center justify-center gap-1.5 shadow-2xs">
+                            <span class="font-bold text-brand-navy text-xs sm:text-sm" contenteditable="true">35,564</span>
+                            <span class="text-[10px] sm:text-xs font-bold text-slate-500 uppercase" contenteditable="true">LEAD</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THÔNG ĐIỆP DẪN DẮT (QUOTE BLOCK) -->
+            <div class="my-6 text-center max-w-4xl mx-auto px-4">
+                <p class="font-serif italic text-lg sm:text-xl md:text-2xl text-brand-textDark font-medium leading-relaxed" contenteditable="true">
+                    “Góp phần đưa <span class="font-bold text-brand-navy bg-amber-200/70 px-2 py-0.5 rounded border border-amber-300/80 underline decoration-brand-gold decoration-1 underline-offset-4 not-italic inline-block mx-0.5 shadow-2xs">đúng thông điệp ưu đãi</span> đến <span class="font-bold text-brand-navy bg-amber-200/70 px-2 py-0.5 rounded border border-amber-300/80 underline decoration-brand-gold decoration-1 underline-offset-4 not-italic inline-block mx-0.5 shadow-2xs">đúng nhóm khách hàng</span>, tại nhiều điểm chạm trong suốt chương trình – hỗ trợ tăng khả năng tiếp cận và thúc đẩy hành động mua sắm.”
+                </p>
+            </div>
+
+            <!-- TẦNG 2 & TẦNG 3: VAI TRÒ CHÍNH & VÍ DỤ CỤ THỂ (XẾP DỌC TỪ TRÊN XUỐNG DƯỚI) -->
+            <div class="flex flex-col gap-6 sm:gap-8 mt-6">
+
+                <!-- KHỐI 1: ĐÚNG THÔNG ĐIỆP - ĐÚNG THỜI ĐIỂM -->
+                <div class="flex flex-col bg-brand-card rounded-2xl border-2 border-brand-border/80 overflow-hidden shadow-md">
+                    
+                    <div class="bg-[#2B5EA7] text-white py-4 px-5 min-h-[70px] flex items-center justify-center text-center font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase shadow-md">
+                        <span contenteditable="true">ĐÚNG THÔNG ĐIỆP – ĐÚNG THỜI ĐIỂM CHO KHÁCH HÀNG MỚI & KHÁCH HÀNG CŨ</span>
+                    </div>
+
+                    <div class="p-5 sm:p-6 md:p-7 bg-stone-50/30">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Nhóm 1: Giới thiệu ưu đãi -->
+                            <div class="flex flex-col justify-between p-4 bg-white rounded-xl border border-stone-200 shadow-xs h-full">
+                                <div class="w-full mb-4 flex-1 flex items-center justify-center">
+                                    <div class="img-container relative aspect-[9/16] min-h-[320px] sm:min-h-[380px] md:min-h-[440px] w-full rounded-lg overflow-hidden border border-stone-200 bg-stone-100/80 shadow-2xs flex items-center justify-center p-1" onclick="promptChangeImage(this)">
+                                        <img src="https://placehold.co/360x640/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+1" alt="Ảnh Giới thiệu 1" class="w-full h-full object-contain rounded drop-shadow-xs">
+                                    </div>
+                                </div>
+                                <div class="text-center pt-3 border-t border-stone-200">
+                                    <p class="text-xs italic text-brand-textMuted" contenteditable="true">Cá nhân hoá nội dung</p>
+                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" contenteditable="true">GIỚI THIỆU ƯU ĐÃI</p>
+                                </div>
+                            </div>
+
+                            <!-- Nhóm 2: Nhắc nhở ưu đãi -->
+                            <div class="flex flex-col justify-between p-4 bg-white rounded-xl border border-stone-200 shadow-xs h-full">
+                                <div class="w-full mb-4 flex-1 flex items-center justify-center">
+                                    <div class="img-container relative aspect-[9/16] min-h-[320px] sm:min-h-[380px] md:min-h-[440px] w-full rounded-lg overflow-hidden border border-stone-200 bg-stone-100/80 shadow-2xs flex items-center justify-center p-1" onclick="promptChangeImage(this)">
+                                        <img src="https://placehold.co/360x640/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+3" alt="Ảnh Nhắc nhở 1" class="w-full h-full object-contain rounded drop-shadow-xs">
+                                    </div>
+                                </div>
+                                <div class="text-center pt-3 border-t border-stone-200">
+                                    <p class="text-xs italic text-brand-textMuted" contenteditable="true">Cá nhân hoá nội dung</p>
+                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" contenteditable="true">NHẮC NHỜ ƯU ĐÃI</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- KHỐI 2: MỞ RỘNG ĐIỂM CHẠM -->
+                <div class="flex flex-col bg-brand-card rounded-2xl border-2 border-brand-border/80 overflow-hidden shadow-md">
+                    
+                    <div class="bg-[#2B5EA7] text-white py-4 px-5 min-h-[70px] flex items-center justify-center text-center font-bold text-sm sm:text-base md:text-lg tracking-wide uppercase shadow-md">
+                        <span contenteditable="true">MỞ RỘNG ĐIỂM CHẠM KHÁCH HÀNG QUA ZALO BROADCAST & BLOG</span>
+                    </div>
+
+                    <div class="p-5 sm:p-6 md:p-7 bg-stone-50/30">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Nhóm 1: Zalo OA Broadcast -->
+                            <div class="flex flex-col justify-between p-4 bg-white rounded-xl border border-stone-200 shadow-xs h-full">
+                                
+                                <div class="w-full mb-4 flex-1 flex items-center justify-center">
+                                    <div class="img-container relative aspect-[9/16] min-h-[320px] sm:min-h-[380px] md:min-h-[440px] w-full rounded-lg overflow-hidden border border-stone-200 bg-stone-100/80 shadow-2xs flex items-center justify-center p-1" onclick="promptChangeImage(this)">
+                                        <img src="https://placehold.co/360x640/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+5" alt="Ảnh Zalo Broadcast" class="w-full h-full object-contain rounded drop-shadow-xs">
+                                    </div>
+                                </div>
+
+                                <div class="text-center pt-3 border-t border-stone-200">
+                                    <p class="text-xs italic text-brand-textMuted" contenteditable="true">Truyền thông qua Zalo</p>
+                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" contenteditable="true">ZALO OA BROADCAST</p>
+                                </div>
+                            </div>
+
+                            <!-- Nhóm 2: Blog Tin Tức PNJ -->
+                            <div class="flex flex-col justify-between p-4 bg-white rounded-xl border border-stone-200 shadow-xs h-full">
+                                
+                                <div class="w-full mb-4 flex-1 flex items-center justify-center">
+                                    <div class="img-container relative aspect-[9/16] min-h-[320px] sm:min-h-[380px] md:min-h-[440px] w-full rounded-lg overflow-hidden border border-stone-200 bg-stone-100/80 shadow-2xs flex items-center justify-center p-1" onclick="promptChangeImage(this)">
+                                        <img src="https://placehold.co/360x640/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+6" alt="Ảnh Blog PNJ" class="w-full h-full object-cover rounded drop-shadow-xs">
+                                    </div>
+                                </div>
+
+                                <div class="text-center pt-3 border-t border-stone-200">
+                                    <p class="text-xs italic text-brand-textMuted" contenteditable="true">Bài viết website & SEO</p>
+                                    <p class="text-xs sm:text-sm md:text-base font-bold text-brand-navy uppercase tracking-wider mt-0.5" contenteditable="true">BLOG TIN TỨC PNJ</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: VAI TRÒ CREATIVE HUB               -->
+        <!-- ========================================== -->
+        <section id="content-subTab-2" class="tab-content hidden">
+            <div class="text-center mb-8">
+                <h1 class="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider text-brand-gold uppercase mb-1" contenteditable="true">
+                    VAI TRÒ CREATIVE HUB
+                </h1>
+                <p class="text-brand-textDark font-bold text-xs sm:text-sm md:text-base uppercase tracking-wide" contenteditable="true">
+                    ĐẢM BẢO TÍNH NHẤT QUÁN GIỮA BRANDING VÀ COMMERCIAL
+                </p>
+            </div>
+
+            <div class="space-y-6">
+
+                <!-- TẦNG 1: OMNI (Full Frame Ngang) -->
+                <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden shadow-sm">
+                    <div class="bg-[#2B5EA7] text-white p-3.5 flex items-center justify-center text-center font-bold text-sm md:text-base tracking-wider uppercase shadow">
+                        <span contenteditable="true">OMNI</span>
+                    </div>
+
+                    <div class="p-5 sm:p-6">
+                        <!-- Nội dung mô tả -->
+                        <div class="mb-5 text-center max-w-3xl mx-auto">
+                            <h3 class="font-bold text-sm sm:text-base text-brand-navy uppercase mb-3 border-b border-brand-border/60 pb-2" contenteditable="true">
+                                HỖ TRỢ THÚC ĐẨY DOANH THU CÁC DÒNG HÀNG TRANG SỨC NON-SALE
+                            </h3>
+                            <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-brand-textDark text-left sm:text-center">
+                                <li class="flex items-center gap-1.5">
+                                    <span class="text-brand-gold font-bold">•</span>
+                                    <span contenteditable="true">Sáng tạo key message phù hợp cho mỗi dòng hàng</span>
+                                </li>
+                                <li class="flex items-center gap-1.5">
+                                    <span class="text-brand-gold font-bold">•</span>
+                                    <span contenteditable="true">Sản xuất nội dung may đo quảng bá cho từng dòng hàng</span>
+                                </li>
+                                <li class="flex items-center gap-1.5">
+                                    <span class="text-brand-gold font-bold">•</span>
+                                    <span contenteditable="true">Mở rộng điểm chạm truyền thông qua Zalo Broadcast</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Grid 3 hình ảnh ngang -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="img-container relative rounded-xl overflow-hidden border border-stone-200 bg-white shadow-xs" onclick="promptChangeImage(this)">
+                                <div class="relative aspect-[16/9] sm:aspect-[3/2] w-full bg-stone-100 flex items-center justify-center">
+                                    <img src="https://placehold.co/600x400/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+JPG+1" alt="Chèn ảnh JPG 1" class="w-full h-full object-cover">
+                                </div>
+                                <div class="p-2.5 bg-stone-50 text-[11px] sm:text-xs font-semibold text-brand-navy text-center border-t border-stone-200" contenteditable="true">
+                                    Trang sức ECZ – Lấp lánh vibe riêng
+                                </div>
+                            </div>
+
+                            <div class="img-container relative rounded-xl overflow-hidden border border-stone-200 bg-white shadow-xs" onclick="promptChangeImage(this)">
+                                <div class="relative aspect-[16/9] sm:aspect-[3/2] w-full bg-stone-100 flex items-center justify-center">
+                                    <img src="https://placehold.co/600x400/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+JPG+2" alt="Chèn ảnh JPG 2" class="w-full h-full object-cover">
+                                </div>
+                                <div class="p-2.5 bg-stone-50 text-[11px] sm:text-xs font-semibold text-brand-navy text-center border-t border-stone-200" contenteditable="true">
+                                    Trang sức Ý – Chất Ý thanh lịch
+                                </div>
+                            </div>
+
+                            <div class="img-container relative rounded-xl overflow-hidden border border-stone-200 bg-white shadow-xs" onclick="promptChangeImage(this)">
+                                <div class="relative aspect-[16/9] sm:aspect-[3/2] w-full bg-stone-100 flex items-center justify-center">
+                                    <img src="https://placehold.co/600x400/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+JPG+3" alt="Chèn ảnh JPG 3" class="w-full h-full object-cover">
+                                </div>
+                                <div class="p-2.5 bg-stone-50 text-[11px] sm:text-xs font-semibold text-brand-navy text-center border-t border-stone-200" contenteditable="true">
+                                    Trang sức Bạc – Lấp lánh đa sắc
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TẦNG 2: TĂNG TRƯỜNG SỐ & PARTNERSHIP (Grid 2 cột) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+
+                    <!-- CỘT 1: TĂNG TRƯỜNG SỐ -->
+                    <div class="flex flex-col bg-brand-card rounded-2xl border border-brand-border overflow-hidden shadow-sm h-full">
+                        <div class="bg-[#2B5EA7] text-white p-3.5 min-h-[56px] flex items-center justify-center text-center font-bold text-sm md:text-base tracking-wider uppercase shadow">
+                            <span contenteditable="true">TĂNG TRƯỜNG SỐ</span>
+                        </div>
+
+                        <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+                            <div class="min-h-[175px] flex flex-col mb-4">
+                                <h3 class="font-bold text-xs sm:text-sm text-brand-navy uppercase mb-3 leading-snug border-b border-brand-border/60 pb-2 text-center min-h-[44px] flex items-center justify-center" contenteditable="true">
+                                    CÁ NHÂN HÓA THÔNG ĐIỆP THEO HÀNH VI & GIÁ TRỊ KHÁCH HÀNG
+                                </h3>
+
+                                <ul class="space-y-2 text-xs text-brand-textDark">
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-brand-gold font-bold">•</span>
+                                        <span contenteditable="true">Cá nhân hóa thông điệp theo <strong class="text-brand-navy font-bold">hành vi & giá trị khách hàng</strong></span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-brand-gold font-bold">•</span>
+                                        <span contenteditable="true">Điều chỉnh content theo từng <strong class="text-brand-navy font-bold">segment / customer profile</strong></span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-brand-gold font-bold">•</span>
+                                        <span contenteditable="true">Tạo communication phù hợp với mục tiêu <strong class="text-brand-navy font-bold">re-engagement</strong></span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Frame ảnh dọc duy nhất cho Tăng Trưởng Số -->
+                            <div class="pt-4 border-t border-brand-border/60 flex-1 flex flex-col justify-between items-center">
+                                
+                                <div class="relative w-full max-w-[280px] sm:max-w-[300px] mx-auto">
+                                    <!-- Carousel Container -->
+                                    <div class="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xs">
+                                        <div id="growthCarouselTrack" class="flex transition-transform duration-300 ease-in-out" style="transform: translateX(0%);">
+                                            <!-- Slide 1 -->
+                                            <div class="w-full flex-shrink-0 p-1">
+                                                <div class="img-container relative aspect-[9/16] min-h-[320px] sm:min-h-[360px] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                                    <img src="https://placehold.co/360x640/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+1+(T%E1%BB%87p+01)" alt="Ảnh Tăng Trưởng Số 1" class="w-full h-full object-contain rounded">
+                                                </div>
+                                            </div>
+                                            <!-- Slide 2 -->
+                                            <div class="w-full flex-shrink-0 p-1">
+                                                <div class="img-container relative aspect-[9/16] min-h-[320px] sm:min-h-[360px] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                                    <img src="https://placehold.co/360x640/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+2+(T%E1%BB%87p+VIP)" alt="Ảnh Tăng Trưởng Số 2" class="w-full h-full object-contain rounded">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Nút Mũi Tên Navigation Trái & Phải -->
+                                    <button onclick="event.stopPropagation(); setGrowthSlide(0)" id="growthPrevBtn" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-md transition-all opacity-40 hover:opacity-100" title="Ảnh trước">
+                                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                                    </button>
+
+                                    <button onclick="event.stopPropagation(); setGrowthSlide(1)" id="growthNextBtn" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 animate-pulse" title="Mũi tên qua phải xem ảnh 2">
+                                        <i class="fa-solid fa-chevron-right text-base text-amber-300"></i>
+                                    </button>
+
+                                    <!-- Badge Indicator & Dots -->
+                                    <div class="flex items-center justify-between mt-2.5 px-1 min-h-[24px]">
+                                        <span id="growthSlideBadge" class="text-[11px] font-bold text-brand-navy bg-brand-goldLight border border-brand-goldBorder px-2.5 py-0.5 rounded-full shadow-2xs">
+                                            Ảnh 1 / 2
+                                        </span>
+                                        <div class="flex items-center gap-1.5">
+                                            <button onclick="event.stopPropagation(); setGrowthSlide(0)" id="growthDot-0" class="w-2.5 h-2.5 rounded-full bg-brand-navy transition-all" title="Ảnh 1"></button>
+                                            <button onclick="event.stopPropagation(); setGrowthSlide(1)" id="growthDot-1" class="w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all" title="Ảnh 2"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Ghi chú thông tin tệp khách hàng phía dưới -->
+                                <div class="w-full mt-3 p-3 bg-brand-goldLight/60 rounded-xl border border-stone-200 text-xs space-y-2 min-h-[84px] flex flex-col justify-center">
+                                    <div class="flex items-start gap-2">
+                                        <i class="fa-solid fa-users text-brand-gold text-xs mt-0.5"></i>
+                                        <div>
+                                            <span class="font-bold text-brand-navy uppercase text-[11px]" contenteditable="true">TỆP KHÁCH HÀNG 01: </span>
+                                            <span class="text-[11px] text-brand-textMuted" contenteditable="true">Khách hàng cũ từng mua TS Ý, dây chuyền nhưng chưa mua TS vỏ, KC</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-2 border-t border-stone-200/60 pt-2">
+                                        <i class="fa-solid fa-crown text-brand-gold text-xs mt-0.5"></i>
+                                        <div>
+                                            <span class="font-bold text-brand-navy uppercase text-[11px]" contenteditable="true">TỆP KHÁCH HÀNG VIP: </span>
+                                            <span class="text-[11px] text-brand-textMuted" contenteditable="true">Khách hàng cũ thuộc nhóm Champion, Loyal, thường xuyên mua hào phóng</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CỘT 2: PARTNERSHIP -->
+                    <div class="flex flex-col bg-brand-card rounded-2xl border border-brand-border overflow-hidden shadow-sm h-full">
+                        <div class="bg-[#2B5EA7] text-white p-3.5 min-h-[56px] flex items-center justify-center text-center font-bold text-sm md:text-base tracking-wider uppercase shadow">
+                            <span contenteditable="true">PARTNERSHIP</span>
+                        </div>
+
+                        <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+                            <div class="min-h-[175px] flex flex-col mb-4">
+                                <h3 class="font-bold text-xs sm:text-sm text-brand-navy uppercase mb-3 leading-snug border-b border-brand-border/60 pb-2 text-center min-h-[44px] flex items-center justify-center" contenteditable="true">
+                                    TRUYỀN THÔNG MỞ RỘNG TIẾP CẬN QUA ĐỐI TÁC THƯƠNG HIỆU
+                                </h3>
+
+                                <ul class="space-y-2 text-xs text-brand-textDark">
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-brand-gold font-bold">•</span>
+                                        <span contenteditable="true">Truyền thông chương trình hợp tác đối tác <strong class="text-brand-navy font-bold">PNJ x Vapp</strong></span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-brand-gold font-bold">•</span>
+                                        <span contenteditable="true">Mở rộng tiếp cận khách hàng từ <strong class="text-brand-navy font-bold">hệ sinh thái đối tác chiến lược</strong></span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-brand-gold font-bold">•</span>
+                                        <span contenteditable="true">Thúc đẩy chuyển đổi thông qua <strong class="text-brand-navy font-bold">quyền lợi Voucher ưu đãi</strong></span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Frame ảnh dọc duy nhất cho Partnership -->
+                            <div class="pt-4 border-t border-brand-border/60 flex-1 flex flex-col justify-between items-center">
+                                <div class="relative w-full max-w-[280px] sm:max-w-[300px] mx-auto">
+                                    <div class="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xs">
+                                        <div class="p-1">
+                                            <div class="img-container relative aspect-[9/16] min-h-[320px] sm:min-h-[360px] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                                <img src="https://placehold.co/360x640/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+d%E1%BB%8Dc+Partnership" alt="Ảnh Partnership" class="w-full h-full object-contain rounded">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Badge Indicator Placeholder giữ cân bằng chiều cao với Cột 1 -->
+                                    <div class="flex items-center justify-between mt-2.5 px-1 min-h-[24px]">
+                                        <span class="text-[11px] font-bold text-brand-navy bg-brand-goldLight border border-brand-goldBorder px-2.5 py-0.5 rounded-full shadow-2xs">
+                                            Hình ảnh Partnership
+                                        </span>
+                                        <div class="flex items-center gap-1.5 opacity-0">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-brand-navy"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Ghi chú thông tin chương trình phía dưới -->
+                                <div class="w-full mt-3 p-3 bg-brand-goldLight/60 rounded-xl border border-stone-200 text-xs space-y-2 min-h-[84px] flex flex-col justify-center">
+                                    <div class="flex items-start gap-2">
+                                        <i class="fa-solid fa-handshake text-brand-gold text-xs mt-0.5"></i>
+                                        <div>
+                                            <span class="font-bold text-brand-navy uppercase text-[11px]" contenteditable="true">ĐỐI TÁC TRUYỀN THÔNG: </span>
+                                            <span class="text-[11px] text-brand-textMuted" contenteditable="true">Chương trình phối hợp truyền thông thương hiệu PNJ x V-App</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-2 border-t border-stone-200/60 pt-2">
+                                        <i class="fa-solid fa-ticket text-brand-gold text-xs mt-0.5"></i>
+                                        <div>
+                                            <span class="font-bold text-brand-navy uppercase text-[11px]" contenteditable="true">ƯU ĐÃI ĐẶC QUYỀN: </span>
+                                            <span class="text-[11px] text-brand-textMuted" contenteditable="true">Phát hành Voucher giảm giá mua sắm lên đến 3.100.000đ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: HỖ TRỢ TRUYỀN THÔNG GTM             -->
+        <!-- ========================================== -->
+        <section id="content-subTab-3" class="tab-content hidden">
+            <div class="bg-gradient-to-r from-[#D97706] via-[#C25E00] to-[#B45309] text-white py-4 sm:py-5 px-6 rounded-2xl text-center shadow-md mb-8 max-w-3xl mx-auto border border-amber-600">
+                <h1 class="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider uppercase mb-1" contenteditable="true">
+                    HỖ TRỢ TRUYỀN THÔNG
+                </h1>
+                <p class="text-amber-100 font-semibold text-xs sm:text-sm tracking-widest uppercase" contenteditable="true">
+                    CHO DÒNG HÀNG, BST VÀ CTKM
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+
+                <!-- CỘT 1: ZALO BROADCAST -->
+                <div class="flex flex-col bg-brand-card rounded-2xl border border-brand-border p-4 sm:p-5 shadow-sm h-full">
+                    <div class="bg-[#2B5EA7] text-white p-3.5 rounded-xl font-bold text-base sm:text-lg text-center uppercase shadow tracking-wider mb-4" contenteditable="true">
+                        ZALO BROADCAST
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-[#3B71CA] text-white rounded-xl p-3.5 text-center shadow-xs flex flex-col justify-center items-center min-h-[85px]">
+                            <div class="font-serif text-lg sm:text-2xl font-bold leading-tight" contenteditable="true">REACH HƠN 546K</div>
+                            <div class="text-[11px] sm:text-xs font-semibold text-blue-100 uppercase mt-0.5" contenteditable="true">người</div>
+                        </div>
+                        <div class="bg-[#3B71CA] text-white rounded-xl p-3.5 text-center shadow-xs flex flex-col justify-center items-center min-h-[85px]">
+                            <div class="font-serif text-lg sm:text-2xl font-bold leading-tight" contenteditable="true">HƠN 14.000</div>
+                            <div class="text-[11px] sm:text-xs font-semibold text-blue-100 uppercase mt-0.5" contenteditable="true">LƯỢT XEM BÀI VIẾT</div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col justify-between p-3 bg-stone-50 rounded-xl border border-stone-200">
+                        <!-- Carousel Wrapper for Zalo Broadcast -->
+                        <div class="relative w-full">
+                            <div class="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xs">
+                                <div id="zaloCarouselTrack" class="flex transition-transform duration-300 ease-in-out" style="transform: translateX(0%);">
+                                    <!-- Slide 1 -->
+                                    <div class="w-full flex-shrink-0 p-1">
+                                        <div class="img-container relative aspect-[16/9] sm:aspect-[16/10] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                            <img src="https://placehold.co/600x350/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+Zalo+1" alt="Ảnh Zalo Broadcast 1" class="w-full h-full object-cover rounded">
+                                        </div>
+                                    </div>
+                                    <!-- Slide 2 -->
+                                    <div class="w-full flex-shrink-0 p-1">
+                                        <div class="img-container relative aspect-[16/9] sm:aspect-[16/10] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                            <img src="https://placehold.co/600x350/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+Zalo+2" alt="Ảnh Zalo Broadcast 2" class="w-full h-full object-cover rounded">
+                                        </div>
+                                    </div>
+                                    <!-- Slide 3 -->
+                                    <div class="w-full flex-shrink-0 p-1">
+                                        <div class="img-container relative aspect-[16/9] sm:aspect-[16/10] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                            <img src="https://placehold.co/600x350/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+Zalo+3" alt="Ảnh Zalo Broadcast 3" class="w-full h-full object-cover rounded">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Navigation Arrow Left -->
+                            <button onclick="event.stopPropagation(); changeZaloSlide(-1)" id="zaloPrevBtn" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-md transition-all opacity-40 hover:opacity-100" title="Ảnh trước">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
+                            </button>
+
+                            <!-- Navigation Arrow Right (▶️) -->
+                            <button onclick="event.stopPropagation(); changeZaloSlide(1)" id="zaloNextBtn" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 animate-pulse" title="Mũi tên qua phải xem ảnh tiếp theo">
+                                <i class="fa-solid fa-chevron-right text-base text-amber-300"></i>
+                            </button>
+
+                            <!-- Badge Indicator & Navigation Dots -->
+                            <div class="flex items-center justify-between mt-2.5 px-1 min-h-[24px]">
+                                <span id="zaloSlideBadge" class="text-[11px] font-bold text-brand-navy bg-brand-goldLight border border-brand-goldBorder px-2.5 py-0.5 rounded-full shadow-2xs">
+                                    Ảnh 1 / 3
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="event.stopPropagation(); setZaloSlide(0)" id="zaloDot-0" class="w-2.5 h-2.5 rounded-full bg-brand-navy transition-all" title="Ảnh 1"></button>
+                                    <button onclick="event.stopPropagation(); setZaloSlide(1)" id="zaloDot-1" class="w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all" title="Ảnh 2"></button>
+                                    <button onclick="event.stopPropagation(); setZaloSlide(2)" id="zaloDot-2" class="w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all" title="Ảnh 3"></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-center text-[11px] sm:text-xs font-semibold text-brand-navy pt-2 mt-2 border-t border-stone-200/60" contenteditable="true">
+                            Hình ảnh tin nhắn / bài viết Zalo OA Broadcast PNJ
+                        </p>
+                    </div>
+                </div>
+
+                <!-- CỘT 2: BLOG -->
+                <div class="flex flex-col bg-brand-card rounded-2xl border border-brand-border p-4 sm:p-5 shadow-sm h-full">
+                    <div class="bg-[#2B5EA7] text-white p-3.5 rounded-xl font-bold text-base sm:text-lg text-center uppercase shadow tracking-wider mb-4" contenteditable="true">
+                        BLOG
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-[#3B71CA] text-white rounded-xl p-3.5 text-center shadow-xs flex flex-col justify-center items-center min-h-[85px]">
+                            <div class="font-serif text-lg sm:text-2xl font-bold leading-tight" contenteditable="true">11 BÀI VIẾT</div>
+                            <div class="text-[11px] sm:text-xs font-semibold text-blue-100 uppercase mt-0.5" contenteditable="true">ĐÃ XUẤT BẢN</div>
+                        </div>
+                        <div class="bg-[#3B71CA] text-white rounded-xl p-3.5 text-center shadow-xs flex flex-col justify-center items-center min-h-[85px]">
+                            <div class="font-serif text-lg sm:text-2xl font-bold leading-tight" contenteditable="true">HƠN 42.000</div>
+                            <div class="text-[11px] sm:text-xs font-semibold text-blue-100 uppercase mt-0.5" contenteditable="true">LƯỢT XEM BÀI VIẾT</div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col justify-between p-3 bg-stone-50 rounded-xl border border-stone-200">
+                        <!-- Carousel Wrapper for Blog (4 Images) -->
+                        <div class="relative w-full">
+                            <div class="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xs">
+                                <div id="blogCarouselTrack" class="flex transition-transform duration-300 ease-in-out" style="transform: translateX(0%);">
+                                    <!-- Slide 1 -->
+                                    <div class="w-full flex-shrink-0 p-1">
+                                        <div class="img-container relative aspect-[16/9] sm:aspect-[16/10] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                            <img src="https://placehold.co/600x350/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+Blog+1" alt="Ảnh Blog 1" class="w-full h-full object-cover rounded">
+                                        </div>
+                                    </div>
+                                    <!-- Slide 2 -->
+                                    <div class="w-full flex-shrink-0 p-1">
+                                        <div class="img-container relative aspect-[16/9] sm:aspect-[16/10] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                            <img src="https://placehold.co/600x350/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+Blog+2" alt="Ảnh Blog 2" class="w-full h-full object-cover rounded">
+                                        </div>
+                                    </div>
+                                    <!-- Slide 3 -->
+                                    <div class="w-full flex-shrink-0 p-1">
+                                        <div class="img-container relative aspect-[16/9] sm:aspect-[16/10] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                            <img src="https://placehold.co/600x350/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+Blog+3" alt="Ảnh Blog 3" class="w-full h-full object-cover rounded">
+                                        </div>
+                                    </div>
+                                    <!-- Slide 4 -->
+                                    <div class="w-full flex-shrink-0 p-1">
+                                        <div class="img-container relative aspect-[16/9] sm:aspect-[16/10] w-full rounded-lg overflow-hidden bg-stone-50 flex items-center justify-center" onclick="promptChangeImage(this)">
+                                            <img src="https://placehold.co/600x350/FAF7F0/A27B38?text=Ch%C3%A8n+%E1%BA%A3nh+Blog+4" alt="Ảnh Blog 4" class="w-full h-full object-cover rounded">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Navigation Arrow Left -->
+                            <button onclick="event.stopPropagation(); changeBlogSlide(-1)" id="blogPrevBtn" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-md transition-all opacity-40 hover:opacity-100" title="Ảnh trước">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
+                            </button>
+
+                            <!-- Navigation Arrow Right (▶️) -->
+                            <button onclick="event.stopPropagation(); changeBlogSlide(1)" id="blogNextBtn" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 animate-pulse" title="Mũi tên qua phải xem ảnh tiếp theo">
+                                <i class="fa-solid fa-chevron-right text-base text-amber-300"></i>
+                            </button>
+
+                            <!-- Badge Indicator & Navigation Dots -->
+                            <div class="flex items-center justify-between mt-2.5 px-1 min-h-[24px]">
+                                <span id="blogSlideBadge" class="text-[11px] font-bold text-brand-navy bg-brand-goldLight border border-brand-goldBorder px-2.5 py-0.5 rounded-full shadow-2xs">
+                                    Ảnh 1 / 4
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="event.stopPropagation(); setBlogSlide(0)" id="blogDot-0" class="w-2.5 h-2.5 rounded-full bg-brand-navy transition-all" title="Ảnh 1"></button>
+                                    <button onclick="event.stopPropagation(); setBlogSlide(1)" id="blogDot-1" class="w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all" title="Ảnh 2"></button>
+                                    <button onclick="event.stopPropagation(); setBlogSlide(2)" id="blogDot-2" class="w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all" title="Ảnh 3"></button>
+                                    <button onclick="event.stopPropagation(); setBlogSlide(3)" id="blogDot-3" class="w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all" title="Ảnh 4"></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-center text-[11px] sm:text-xs font-semibold text-brand-navy pt-2 mt-2 border-t border-stone-200/60" contenteditable="true">
+                            Hình ảnh giao diện / tổng hợp bài viết Blog PNJ
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // State management
+        let isEditMode = false;
+        let activeImgElement = null;
+
+        // Function to switch sub tabs
+        function switchSubTab(tabNumber) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+                tab.classList.remove('block');
+            });
+
+            const targetContent = document.getElementById(`content-subTab-${tabNumber}`);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+                targetContent.classList.add('block');
+            }
+
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`subTab-${i}`);
+                if (btn) {
+                    if (i === tabNumber) {
+                        btn.className = "px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all duration-200 flex items-center gap-2 bg-brand-navy text-white shadow";
+                        const icon = btn.querySelector('i');
+                        if (icon && i === 1) icon.className = "fa-solid fa-star text-amber-300 text-xs";
+                    } else {
+                        btn.className = "px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm tracking-wide transition-all duration-200 flex items-center gap-2 text-brand-textDark hover:bg-brand-beige/50";
+                        const icon = btn.querySelector('i');
+                        if (icon && i === 1) icon.className = "fa-solid fa-star text-brand-gold text-xs";
+                    }
+                }
+            }
+        }
+
+        // Quick edit mode toggle
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const body = document.body;
+            const btnText = document.getElementById('editBtnText');
+            const toggleBtn = document.getElementById('toggleEditBtn');
+
+            if (isEditMode) {
+                body.classList.add('editable-active');
+                btnText.textContent = "Đang ở chế độ sửa";
+                toggleBtn.classList.add('bg-amber-100', 'border-amber-400');
+            } else {
+                body.classList.remove('editable-active');
+                btnText.textContent = "Chế độ sửa nhanh";
+                toggleBtn.classList.remove('bg-amber-100', 'border-amber-400');
+            }
+        }
+
+        // Open custom image modal without alert/confirm
+        function promptChangeImage(container) {
+            const img = container.querySelector('img');
+            if (!img) return;
+
+            activeImgElement = img;
+            
+            const urlInput = document.getElementById('imageUrlInput');
+            if (urlInput) {
+                urlInput.value = img.src.startsWith('data:') ? '' : img.src;
+            }
+
+            openImageModal();
+        }
+
+        function openImageModal() {
+            const modal = document.getElementById('imageModal');
+            const modalCard = document.getElementById('imageModalCard');
+            if (modal && modalCard) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modalCard.classList.remove('scale-95', 'opacity-0');
+                    modalCard.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            const modalCard = document.getElementById('imageModalCard');
+            if (modal && modalCard) {
+                modalCard.classList.remove('scale-100', 'opacity-100');
+                modalCard.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 200);
+            }
+        }
+
+        function triggerLocalFileUpload() {
+            closeImageModal();
+            setTimeout(() => {
+                document.getElementById('globalImageInput').click();
+            }, 200);
+        }
+
+        function applyImageUrl() {
+            const urlInput = document.getElementById('imageUrlInput');
+            if (urlInput && activeImgElement) {
+                const url = urlInput.value.trim();
+                if (url) {
+                    activeImgElement.src = url;
+                }
+            }
+            closeImageModal();
+        }
+
+        // Handle selected local file
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && activeImgElement) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    activeImgElement.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+            event.target.value = '';
+        }
+
+        // Growth Carousel state & controls
+        let currentGrowthSlide = 0;
+
+        function setGrowthSlide(index) {
+            currentGrowthSlide = index;
+            const track = document.getElementById('growthCarouselTrack');
+            const badge = document.getElementById('growthSlideBadge');
+            const dot0 = document.getElementById('growthDot-0');
+            const dot1 = document.getElementById('growthDot-1');
+            const prevBtn = document.getElementById('growthPrevBtn');
+            const nextBtn = document.getElementById('growthNextBtn');
+
+            if (track) {
+                track.style.transform = `translateX(-${index * 100}%)`;
+            }
+
+            if (badge) {
+                badge.textContent = `Ảnh ${index + 1} / 2`;
+            }
+
+            if (dot0 && dot1) {
+                if (index === 0) {
+                    dot0.className = "w-2.5 h-2.5 rounded-full bg-brand-navy transition-all";
+                    dot1.className = "w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all";
+                    if (prevBtn) prevBtn.className = "absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-md transition-all opacity-40 hover:opacity-100";
+                    if (nextBtn) nextBtn.className = "absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 animate-pulse";
+                } else {
+                    dot0.className = "w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all";
+                    dot1.className = "w-2.5 h-2.5 rounded-full bg-brand-navy transition-all";
+                    if (prevBtn) prevBtn.className = "absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 animate-pulse";
+                    if (nextBtn) nextBtn.className = "absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-md transition-all opacity-40 hover:opacity-100";
+                }
+            }
+        }
+
+        // Blog Carousel state & controls
+        let currentBlogSlide = 0;
+        const totalBlogSlides = 4;
+
+        function setBlogSlide(index) {
+            currentBlogSlide = (index + totalBlogSlides) % totalBlogSlides;
+            const track = document.getElementById('blogCarouselTrack');
+            const badge = document.getElementById('blogSlideBadge');
+            const prevBtn = document.getElementById('blogPrevBtn');
+            const nextBtn = document.getElementById('blogNextBtn');
+
+            if (track) {
+                track.style.transform = `translateX(-${currentBlogSlide * 100}%)`;
+            }
+
+            if (badge) {
+                badge.textContent = `Ảnh ${currentBlogSlide + 1} / ${totalBlogSlides}`;
+            }
+
+            for (let i = 0; i < totalBlogSlides; i++) {
+                const dot = document.getElementById(`blogDot-${i}`);
+                if (dot) {
+                    if (i === currentBlogSlide) {
+                        dot.className = "w-2.5 h-2.5 rounded-full bg-brand-navy transition-all";
+                    } else {
+                        dot.className = "w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all";
+                    }
+                }
+            }
+
+            if (prevBtn) {
+                if (currentBlogSlide === 0) {
+                    prevBtn.className = "absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-md transition-all opacity-40 hover:opacity-100";
+                } else {
+                    prevBtn.className = "absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95";
+                }
+            }
+
+            if (nextBtn) {
+                if (currentBlogSlide === totalBlogSlides - 1) {
+                    nextBtn.className = "absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-md transition-all opacity-40 hover:opacity-100";
+                } else {
+                    nextBtn.className = "absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 animate-pulse";
+                }
+            }
+        }
+
+        function changeBlogSlide(direction) {
+            setBlogSlide(currentBlogSlide + direction);
+        }
+
+        // Zalo Carousel state & controls
+        let currentZaloSlide = 0;
+        const totalZaloSlides = 3;
+
+        function setZaloSlide(index) {
+            currentZaloSlide = (index + totalZaloSlides) % totalZaloSlides;
+            const track = document.getElementById('zaloCarouselTrack');
+            const badge = document.getElementById('zaloSlideBadge');
+            const prevBtn = document.getElementById('zaloPrevBtn');
+            const nextBtn = document.getElementById('zaloNextBtn');
+
+            if (track) {
+                track.style.transform = `translateX(-${currentZaloSlide * 100}%)`;
+            }
+
+            if (badge) {
+                badge.textContent = `Ảnh ${currentZaloSlide + 1} / ${totalZaloSlides}`;
+            }
+
+            for (let i = 0; i < totalZaloSlides; i++) {
+                const dot = document.getElementById(`zaloDot-${i}`);
+                if (dot) {
+                    if (i === currentZaloSlide) {
+                        dot.className = "w-2.5 h-2.5 rounded-full bg-brand-navy transition-all";
+                    } else {
+                        dot.className = "w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-stone-400 transition-all";
+                    }
+                }
+            }
+
+            if (prevBtn) {
+                if (currentZaloSlide === 0) {
+                    prevBtn.className = "absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-md transition-all opacity-40 hover:opacity-100";
+                } else {
+                    prevBtn.className = "absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95";
+                }
+            }
+
+            if (nextBtn) {
+                if (currentZaloSlide === totalZaloSlides - 1) {
+                    nextBtn.className = "absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-md transition-all opacity-40 hover:opacity-100";
+                } else {
+                    nextBtn.className = "absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-brand-navy text-white hover:bg-brand-navyLight flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 animate-pulse";
+                }
+            }
+        }
+
+        function changeZaloSlide(direction) {
+            setZaloSlide(currentZaloSlide + direction);
+        }
+
+        window.onload = function() {
+            switchSubTab(1);
+        };
+    </script>
+</body>
+</html>
